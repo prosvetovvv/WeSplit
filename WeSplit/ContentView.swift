@@ -9,18 +9,24 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var checkAmount = ""
-    @State private var numberOfPeople = 0
+    @State private var numberOfPeople = ""
     @State private var tipPercentage = 2
     @State private var tipPercentages = [10, 15, 25, 0]
     
-    var totalPerPerson: Double {
-        let peopleCount = Double(numberOfPeople + 2)
-        let tipSelection = Double(tipPercentages[tipPercentage])
+    var totalWithTip: Double {
         let orderAmount = Double(checkAmount) ?? 0
+        let tipSelection = Double(tipPercentages[tipPercentage])
         
         let tipValue = orderAmount / 100 * tipSelection
         let grandTotal = orderAmount + tipValue
-        let amountPerPerson = grandTotal / peopleCount
+        
+        return grandTotal
+    }
+    
+    var totalPerPerson: Double {
+        let amountPeople = Double(numberOfPeople) ?? 1
+        
+        let amountPerPerson = totalWithTip / amountPeople
         
         return amountPerPerson
     }
@@ -31,12 +37,9 @@ struct ContentView: View {
                 Section {
                     TextField("Amount", text: $checkAmount)
                         .keyboardType(.decimalPad)
-                    
-                    Picker("Number of people", selection: $numberOfPeople) {
-                        ForEach(2 ..< 100) {
-                            Text("\($0) people")
-                        }
-                    }
+
+                    TextField("Number of people", text: $numberOfPeople)
+                        .keyboardType(.numberPad)
                 }
                 
                 Section(header: Text("How much tip do you want to leave?")) {
@@ -48,7 +51,11 @@ struct ContentView: View {
                     .pickerStyle(SegmentedPickerStyle())
                 }
                 
-                Section {
+                Section(header: Text("Amount")) {
+                    Text("$\(totalWithTip, specifier: "%.2f")")
+                }
+                
+                Section(header: Text("Amount per person")) {
                     Text("$\(totalPerPerson, specifier: "%.2f")")
                 }
             }
